@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image & PDF Upload</title>
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <style>
+    :root {
+      --card-width: 220px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #000;
+      overflow-x: hidden;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 10px;
+      position: relative;
+    }
+
+    nav {
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      border-radius: 0 0 15px 15px;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    nav .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .menu-icon {
+      display: none;
+      font-size: 28px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #ffea00;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 120px;
+      padding: 0 10px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: box-shadow 0.3s ease, background 0.3s ease, border 0.3s;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      position: relative;
+    }
+
+    .card:hover {
+      box-shadow: 0 0 20px #fff, 0 0 30px #aaa;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid #fff;
+    }
+
+    .card img {
+      max-width: 100%;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 15px;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .custom-file-upload {
+      display: inline-block;
+      padding: 8px 16px;
+      cursor: pointer;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .custom-file-upload:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    .upload-label {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    .preview {
+      margin-top: 10px;
+    }
+
+    .preview img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    .progress-container {
+      margin-top: 10px;
+      background: #111;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #555;
+    }
+
+    .progress-bar {
+      height: 8px;
+      width: 0;
+      background: linear-gradient(90deg, #fff, #000);
+      transition: width 0.4s ease;
+    }
+
+    .checkmark {
+      color: lime;
+      font-size: 20px;
+      margin-top: 10px;
+      animation: pop 0.4s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-icon {
+        display: block;
+      }
+
+      nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 65px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.85);
+        border-radius: 10px;
+        padding: 15px;
+        z-index: 99;
+      }
+
+      nav ul.active {
+        display: flex;
+        animation: slideIn 0.3s ease forwards;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">Uploader</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Search</a></li>
+      <li><a href="#">Login</a></li>
+      <li><a href="#">Sign In</a></li>
+      <li><a href="#">About Us</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="card" data-aos="fade-up">
+      <img src="https://cdn-icons-png.flaticon.com/512/685/685655.png" alt="Upload Image Icon"/>
+      <h2>Upload Image</h2>
+      <label for="imageUpload" class="custom-file-upload" title="Select image files">Choose Images</label>
+      <input type="file" id="imageUpload" accept="image/*" multiple/>
+      <span class="upload-label">Supported formats: JPG, PNG</span>
+      <div class="preview" id="imagePreview"></div>
+      <div class="progress-container"><div class="progress-bar" id="imageProgress"></div></div>
+      <div class="checkmark" id="imageCheck"></div>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="Upload PDF Icon"/>
+      <h2>Upload PDF</h2>
+      <label for="pdfUpload" class="custom-file-upload" title="Select PDF files">Choose PDFs</label>
+      <input type="file" id="pdfUpload" accept="application/pdf" multiple/>
+      <span class="upload-label">Only PDF files supported</span>
+      <div class="preview" id="pdfPreview"></div>
+      <div class="progress-container"><div class="progress-bar" id="pdfProgress"></div></div>
+      <div class="checkmark" id="pdfCheck"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>AOS.init();</script>
+  <script>
+    function toggleMenu() {
+      const navMenu = document.getElementById('navMenu');
+      navMenu.classList.toggle('active');
+    }
+
+    function simulateUpload(progressBar, checkmark) {
+      progressBar.style.width = '0%';
+      checkmark.innerHTML = '';
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        progressBar.style.width = progress + '%';
+        if (progress >= 100) {
+          clearInterval(interval);
+          checkmark.innerHTML = '✔';
+        }
+      }, 100);
+    }
+
+    document.getElementById("imageUpload").addEventListener("change", (e) => {
+      const preview = document.getElementById("imagePreview");
+      const files = e.target.files;
+      preview.innerHTML = "";
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement("img");
+          img.src = reader.result;
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+      simulateUpload(document.getElementById("imageProgress"), document.getElementById("imageCheck"));
+    });
+
+    document.getElementById("pdfUpload").addEventListener("change", (e) => {
+      const preview = document.getElementById("pdfPreview");
+      const files = e.target.files;
+      preview.innerHTML = "";
+      Array.from(files).forEach(file => {
+        const div = document.createElement("div");
+        div.innerHTML = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        preview.appendChild(div);
+      });
+      simulateUpload(document.getElementById("pdfProgress"), document.getElementById("pdfCheck"));
+    });
+
+    document.addEventListener('click', function(event) {
+      const navMenu = document.getElementById('navMenu');
+      const menuIcon = document.querySelector('.menu-icon');
+      if (!navMenu.contains(event.target) && !menuIcon.contains(event.target)) {
+        navMenu.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>
